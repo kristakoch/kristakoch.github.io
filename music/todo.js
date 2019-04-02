@@ -1,6 +1,4 @@
 /* a place for the ideas messin up my files */
-
-// TODO: 
 // test in browsers other than chrome
 // way to do this w/o token that expires after 1hr? -> server?
 // button to get a new suggestion? 
@@ -9,4 +7,4 @@
 // play button is ugly - weird to have album image appearing twice
 // note that if you click anywhere, modal closes
 // animate sparkles on button hover?
-// play button pops up too quick
+// play button pops up too quickly

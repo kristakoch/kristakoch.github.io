@@ -136,6 +136,7 @@ body {
     left: 0.5em;
     margin-right: -50%;
 }
+
 .album-art {
     position: absolute;
     z-index: -1;
@@ -143,12 +144,12 @@ body {
     margin:auto;
     transition: 1s all;
     transition-delay: 1s;
-    animation: blur 2s;
+    animation: unblur 2s;
     filter: brightness(20%);
     max-width: 90%;
 }
 
-@-webkit-keyframes blur {
+@-webkit-keyframes unblur {
     0%  { -webkit-filter: blur(15px) brightness(20%); }
     100% { -webkit-filter: blur(0px) brightness(20%); }
   }

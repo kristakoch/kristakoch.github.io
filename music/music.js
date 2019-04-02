@@ -1,11 +1,11 @@
-/*************************************/
-/* modify and return the data nicely */
-/*************************************/
+/**************************************************/
+/* functions to modify and return the data nicely */
+/**************************************************/
 
 // do setup
 init();
 
-// playlists by mood, with the mood name as the key and the spotify uri as the value
+// playlists by mood with the mood as the key and the spotify uri as the value
 var emotionsAndPlaylistURIs = {
     "inspired": "16FifVITGI0ud84IuTgj03",
     "mystical": "4mtsECh01GM83NtxaGMfJh",
@@ -18,6 +18,7 @@ var emotionsAndPlaylistURIs = {
     "angry":"24XMcBTtHV7gPKazDHTwNc"
 }
 
+// moods by color for modal background
 var emotionsAndColors = {
     "inspired": "rgb(104, 99, 43)",
     "mystical": "rgb(54, 27, 89)",
@@ -30,38 +31,7 @@ var emotionsAndColors = {
     "angry":"rgb(109, 32, 32)" /* red */
 }
 
-function buttonClick(emotionName) {
-    openModal(emotionName);
-
-    // get playlisturi for emotionname
-    let playlistURI = getURI(emotionName);
-
-    // post the recommendation
-    fetchAndPostSong(playlistURI);
-}
-
-// get URI
-function getURI(emotionName) {
-    // get key for matching val
-    for(playlist in emotionsAndPlaylistURIs) {
-        if(playlist == emotionName) {
-            return emotionsAndPlaylistURIs[playlist];
-        }
-    }
-}
-
-// get color
-function getColor(emotionName) {
-    // get key for matching val
-    for(emotion in emotionsAndColors) {
-        if(emotion == emotionName) {
-            return emotionsAndColors[emotion];
-        }
-    }
-}
-
-
-// assign a click event for each box to return the name of the associated playlist
+// assign a click event for each box to return the emotion name corresponding to a playlist
 function init() {
     // set box listeners
     var boxes = document.querySelectorAll(".box");
@@ -71,6 +41,7 @@ function init() {
             buttonClick(emotionName);
         });
     });
+
     // set close button listener on modal
     var closeBtn = document.querySelector(".modal-close");
     var modal = document.getElementById("song-modal");
@@ -79,7 +50,16 @@ function init() {
     modal.addEventListener('click', function(event) { closeModal(event); });
 }
 
-// opens the modal on the page
+// opens the modal, gets the playlist uri, and returns the track data
+function buttonClick(emotionName) {
+    openModal(emotionName);
+
+    let playlistURI = getURI(emotionName);
+
+    fetchAndPostSong(playlistURI);
+}
+
+// open up the modal 
 function openModal(emotionName) {
     var modal = document.getElementById("song-modal");
     var songRecText = document.getElementById("song-rec-text");
@@ -93,7 +73,7 @@ function openModal(emotionName) {
     songRecText.style.opacity = "1";
 }
 
-// closes down the modal
+// close down the modal
 function closeModal(event) {
     var modal = document.getElementById("song-modal");
     var songRecText = document.getElementById("song-rec-text");
@@ -105,6 +85,24 @@ function closeModal(event) {
     document.body.style.overflow = "auto";
 }
 
+// gets the URI
+function getURI(emotionName) {
+    for(playlist in emotionsAndPlaylistURIs) {
+        if(playlist == emotionName) {
+            return emotionsAndPlaylistURIs[playlist];
+        }
+    }
+}
+
+// gets the color
+function getColor(emotionName) {
+    for(emotion in emotionsAndColors) {
+        if(emotion == emotionName) {
+            return emotionsAndColors[emotion];
+        }
+    }
+}
+
 // helper to get a random number between the min and max, inclusive
 function getRandomInRange(min, max) {
     min = Math.ceil(min);
@@ -112,11 +110,11 @@ function getRandomInRange(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min; 
   }
 
-/*************************************/
-/* here are the fetch functions      */
-/*************************************/
+/*******************************************/
+/* functions to fetch and display the data */
+/*******************************************/
 
-// the auth key
+// the auth key (lasts 1 hour)
 var authKey = "Bearer BQCp-Iytu2oiQA4IC9kcLMQv81zkIZ4Fh809bjT2-KHZslTA8eIEAFvFcFjlQXHWrwxbJ1TZw_OiERFax_vhTD932ZRrdgxuV-zhfWVX2vJw9oXtBLONimTSqIu6QwDfvg1WbvVHNfOh4lvn07yr3UiMCR-eHdaL2g";
 
 // fetch the length and roll into the getTrack method
@@ -134,13 +132,13 @@ function fetchAndPostSong(playlistURI) {
     });
 }
 
-// get a random track between the first and the last song on the playlist
+// get a random song on the playlist and print its details to the page
 function getTrack(playlistURI, playlistLength) {
-    // do fetch with playlist length and new url
+    // get a random index between 0 & playlist length and build the url
     let songIndex = getRandomInRange(0, playlistLength - 1);
-
     let fetchFromURL = "https://api.spotify.com/v1/playlists/" + playlistURI + "/tracks?fields=items(track(name,album,artists,id))&limit=1&offset=" + songIndex;
 
+    // get the data and print it to the page
     fetch(fetchFromURL, { method: "GET", headers: { "Authorization": authKey } 
     })
     .then(function(response) {
@@ -153,7 +151,6 @@ function getTrack(playlistURI, playlistLength) {
         let songRecText = document.getElementById("song-rec-text");
         let songID = myJSON.items[0].track.id;
 
-        // print the rec
         songRecText.innerHTML = 
         `<iframe class="spotify-player" src="https://open.spotify.com/embed/track/${songID}" width="80" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
         <img class="album-art" src="${albumArtURL}"/>
