@@ -28,7 +28,7 @@ var emotionsAndColors = {
     "crying": "rgb(0, 23, 109)",
     "cool": "rgb(73, 96, 48)",
     "melancholy": "rgb(44, 60, 124)",
-    "angry":"rgb(109, 32, 32)" /* red */
+    "angry":"rgb(109, 32, 32)"
 }
 
 // assign a click event for each box to return the emotion name corresponding to a playlist
@@ -45,9 +45,16 @@ function init() {
     // set close button listener on modal
     var closeBtn = document.querySelector(".modal-close");
     var modal = document.getElementById("song-modal");
+    var submitBtn = document.querySelector('.submit-token-btn')
 
     closeBtn.addEventListener('click', function(event) { closeModal(event);});
     modal.addEventListener('click', function(event) { closeModal(event); });
+
+    // set listener for button
+    submitBtn.addEventListener('click', function(event) {
+        var key = document.querySelector('.auth-key-input').value;
+        authKey = `Bearer ${key}`;
+    });
 }
 
 // opens the modal, gets the playlist uri, and returns the track data
@@ -110,12 +117,14 @@ function getRandomInRange(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min; 
   }
 
+
+
 /*******************************************/
 /* functions to fetch and display the data */
 /*******************************************/
 
 // the auth key (lasts 1 hour)
-var authKey = "Bearer BQCp-Iytu2oiQA4IC9kcLMQv81zkIZ4Fh809bjT2-KHZslTA8eIEAFvFcFjlQXHWrwxbJ1TZw_OiERFax_vhTD932ZRrdgxuV-zhfWVX2vJw9oXtBLONimTSqIu6QwDfvg1WbvVHNfOh4lvn07yr3UiMCR-eHdaL2g";
+var authKey = "Bearer BQBMOF9_JCbPgwIrCHXcfNbmswVmFdoMm_UbV1zkj6Ejd_wXtc2tln6jEMfGqvRpHI197dRqiRONg7NL1-hkENErg6u9eKB1dgoiZ1q9SQMkwang4CUZhKQ1saPqcClnDm1-TTZe1zp_oVwdXYXqCWMNMfpSjRzjAQ";
 
 // fetch the length and roll into the getTrack method
 function fetchAndPostSong(playlistURI) {
@@ -123,12 +132,19 @@ function fetchAndPostSong(playlistURI) {
     fetch(fetchFromURL, { method: "GET", headers: { "Authorization": authKey } 
     })
     .then(function(response) {
-        return response.json();
+        if (response.ok) {
+            return response.json();
+        } else {
+            document.getElementById("song-rec-text").innerHTML = '<p class="error-msg">Please supply a valid authorization token 🗝</p>';
+            throw Error(response.statusText);
+        }
     })
     .then(function(myJSON) {
         return myJSON.tracks.total;
     }).then(function (playlistLength) {
-        getTrack(playlistURI, playlistLength)
+        getTrack(playlistURI, playlistLength);
+        document.querySelector(".auth-input-container").classList.remove("invalid");
+        document.querySelector(".auth-input-container").classList.add("valid");
     });
 }
 
